@@ -1,6 +1,7 @@
 package com.checkout.payment.gateway.controller;
 
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,7 +66,7 @@ class PaymentGatewayControllerTest {
     PostPaymentRequest postPaymentRequest = new PostPaymentRequest();
     postPaymentRequest.setAmount(100);
     postPaymentRequest.setCurrency("GBP");
-    postPaymentRequest.setCvv(123);
+    postPaymentRequest.setCvv("123");
     postPaymentRequest.setCardNumber("2222405343248877");
     postPaymentRequest.setExpiryMonth(12);
     postPaymentRequest.setExpiryYear(2027);
@@ -87,7 +88,7 @@ class PaymentGatewayControllerTest {
     PostPaymentRequest postPaymentRequest = new PostPaymentRequest();
     postPaymentRequest.setAmount(100);
     postPaymentRequest.setCurrency("GBP");
-    postPaymentRequest.setCvv(123);
+    postPaymentRequest.setCvv("123");
     postPaymentRequest.setCardNumber("2222405343248872");
     postPaymentRequest.setExpiryMonth(12);
     postPaymentRequest.setExpiryYear(2027);
@@ -109,7 +110,7 @@ class PaymentGatewayControllerTest {
     PostPaymentRequest postPaymentRequest = new PostPaymentRequest();
     postPaymentRequest.setAmount(100);
     postPaymentRequest.setCurrency("GBP");
-    postPaymentRequest.setCvv(123);
+    postPaymentRequest.setCvv("123");
     postPaymentRequest.setCardNumber("2222405343248870");
     postPaymentRequest.setExpiryMonth(12);
     postPaymentRequest.setExpiryYear(2027);
@@ -118,6 +119,24 @@ class PaymentGatewayControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(postPaymentRequest)))
         .andExpect(status().isServiceUnavailable());
+
+  }
+
+  @Test
+  void whenPostPaymentShouldReturnPaymentRejectedWhenBadRequest() throws Exception {
+    PostPaymentRequest postPaymentRequest = new PostPaymentRequest();
+    postPaymentRequest.setAmount(-1);
+    postPaymentRequest.setCurrency("AUD");
+    postPaymentRequest.setCvv("123");
+    postPaymentRequest.setCardNumber("2222405343248870");
+    postPaymentRequest.setExpiryMonth(12);
+    postPaymentRequest.setExpiryYear(2027);
+
+    mvc.perform(MockMvcRequestBuilders.post("/payment/process")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(postPaymentRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()));
 
   }
 }

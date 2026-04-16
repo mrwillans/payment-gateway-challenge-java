@@ -1,14 +1,18 @@
 package com.checkout.payment.gateway.controller;
 
+import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.checkout.payment.gateway.service.PaymentGatewayService;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,12 +36,23 @@ public class PaymentGatewayController {
   }
 
   @PostMapping("/payment/process")
-  public ResponseEntity<PostPaymentResponse> postPaymentRequest(@RequestBody PostPaymentRequest postPaymentRequest){
-    return new ResponseEntity<>(paymentGatewayService.processPayment(postPaymentRequest), HttpStatus.OK);
+  public ResponseEntity<PostPaymentResponse> postPaymentRequest(
+      @Valid @RequestBody PostPaymentRequest postPaymentRequest) {
+    return new ResponseEntity<>(paymentGatewayService.processPayment(postPaymentRequest),
+        HttpStatus.OK);
   }
 
   @ExceptionHandler(HttpServerErrorException.ServiceUnavailable.class)
-  public ResponseEntity<Object> handleExternalServiceUnavailable(HttpServerErrorException.ServiceUnavailable ex) {
+  public ResponseEntity<Object> handleExternalServiceUnavailable(
+      HttpServerErrorException.ServiceUnavailable ex) {
     return new ResponseEntity<>(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<PostPaymentResponse> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
+    PostPaymentResponse postPaymentResponse = new PostPaymentResponse();
+    postPaymentResponse.setStatus(PaymentStatus.REJECTED);
+    return new ResponseEntity<>(postPaymentResponse, HttpStatus.BAD_REQUEST);
   }
 }
