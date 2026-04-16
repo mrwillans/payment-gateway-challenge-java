@@ -5,8 +5,7 @@ import java.io.Serializable;
 
 public class PostPaymentRequest implements Serializable {
 
-  @JsonProperty("card_number_last_four")
-  private int cardNumberLastFour;
+  private String cardNumber;
   @JsonProperty("expiry_month")
   private int expiryMonth;
   @JsonProperty("expiry_year")
@@ -15,12 +14,12 @@ public class PostPaymentRequest implements Serializable {
   private int amount;
   private int cvv;
 
-  public int getCardNumberLastFour() {
-    return cardNumberLastFour;
+  public String getCardNumber() {
+    return cardNumber;
   }
 
-  public void setCardNumberLastFour(int cardNumberLastFour) {
-    this.cardNumberLastFour = cardNumberLastFour;
+  public void setCardNumber(String cardNumber) {
+    this.cardNumber = cardNumber;
   }
 
   public int getExpiryMonth() {
@@ -63,6 +62,10 @@ public class PostPaymentRequest implements Serializable {
     this.cvv = cvv;
   }
 
+  public String getLastFourDigits(){
+    return cardNumber.substring(cardNumber.length() -4);
+  }
+
   @JsonProperty("expiry_date")
   public String getExpiryDate() {
     return String.format("%d/%d", expiryMonth, expiryYear);
@@ -71,7 +74,7 @@ public class PostPaymentRequest implements Serializable {
   @Override
   public String toString() {
     return "PostPaymentRequest{" +
-        "cardNumberLastFour=" + cardNumberLastFour +
+        "cardNumber=" + cardNumber +
         ", expiryMonth=" + expiryMonth +
         ", expiryYear=" + expiryYear +
         ", currency='" + currency + '\'' +
