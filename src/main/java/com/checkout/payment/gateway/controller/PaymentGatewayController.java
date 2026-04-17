@@ -41,18 +41,4 @@ public class PaymentGatewayController {
     return new ResponseEntity<>(paymentGatewayService.processPayment(postPaymentRequest),
         HttpStatus.OK);
   }
-
-  @ExceptionHandler(HttpServerErrorException.ServiceUnavailable.class)
-  public ResponseEntity<Object> handleExternalServiceUnavailable(
-      HttpServerErrorException.ServiceUnavailable ex) {
-    return new ResponseEntity<>(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
-  }
-
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<PostPaymentResponse> handleValidationExceptions(
-      MethodArgumentNotValidException ex) {
-    PostPaymentResponse postPaymentResponse = new PostPaymentResponse();
-    postPaymentResponse.setStatus(PaymentStatus.REJECTED);
-    return new ResponseEntity<>(postPaymentResponse, HttpStatus.BAD_REQUEST);
-  }
 }
