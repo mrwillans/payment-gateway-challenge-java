@@ -48,7 +48,9 @@ public class PaymentGatewayService {
     paymentResponse.setStatus(bankResponse.authorized() ? PaymentStatus.AUTHORIZED: PaymentStatus.DECLINED);
     paymentResponse.setExpiryMonth(paymentRequest.getExpiryMonth());
     paymentResponse.setExpiryYear(paymentRequest.getExpiryYear());
-    paymentResponse.setCardNumberLastFour(Integer.parseInt(paymentRequest.getLastFourDigits()));
+    paymentResponse.setCardNumberLastFour(paymentRequest.getLastFourDigits());
+
+    paymentsRepository.add(paymentResponse);
 
     return paymentResponse;
   }
